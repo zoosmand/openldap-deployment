@@ -1,0 +1,13 @@
+---
+- hosts: ldap_replica_servers
+  become: yes
+  become_method: sudo
+  gather_facts: true
+
+  tags:
+    - ldap_replica
+
+  roles:
+    - role: common
+    - role: replica
+    - role: finish

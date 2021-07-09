@@ -1,0 +1,122 @@
+---
+- name: -------- Include variables --------
+  include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - '{{ secrets_file }}.yml'
+        - default.yml
+      paths:
+        - '.'
+
+- name: -------- Update repository and install packages --------
+  apt:
+    update_cache: yes
+    pkg:
+      - slapd
+      - ldap-utils
+
+- name: -------- Stop slapd service --------
+  service:
+    name: slapd
+    state: stopped
+
+- name: -------- Delete OpenLDAP default configuration --------
+  file:
+    path: /etc/ldap/slapd.d
+    state: absent
+
+- name: -------- Delete OpenLDAP default database --------
+  file:
+    path: /var/lib/ldap
+    state: absent
+
+- name: -------- Create OpenLDAP db directory --------
+  file:
+    path: /var/lib/ldap
+    state: directory
+    owner: openldap
+    group: openldap
+    mode: 0755
+
+- name: -------- Copy configuration files for OpenLDAP --------
+  copy:
+    src: slapd.d.tgz
+    dest: /tmp/slapd.d.tgz
+    owner: root
+    group: root
+    mode: 0644
+
+- name: -------- Unpack configuration files for OpenLDAP --------
+  unarchive:
+    src: /tmp/slapd.d.tgz
+    dest: /
+    owner: openldap
+    group: openldap
+    remote_src: yes
+
+- name: -------- Create LDAP TLS cert directory --------
+  file:
+    path: /etc/ldap/cert
+    state: directory
+    owner: openldap
+    group: openldap
+    mode: 0750
+
+- name: -------- Copy server certificate --------
+  copy:
+    src: tls/crt/{{ node }}.ldap.{{ domain }}.crt
+    dest: /etc/ldap/cert/server.crt
+    owner: openldap
+    group: openldap
+    mode: 0640
+
+- name: -------- Copy server key --------
+  copy:
+    src: tls/key/{{ node }}.ldap.{{ domain }}.key 
+    dest: /etc/ldap/cert/server.key
+    owner: openldap
+    group: openldap
+    mode: 0400
+
+- name: -------- Copy CA certificate --------
+  copy:
+    src: tls/ca.{{ domain }}.crt
+    dest: /etc/ldap/cert/ca.crt
+    owner: openldap
+    group: openldap
+    mode: 0640
+
+- name: -------- Fix startup parameters --------
+  lineinfile:
+    state: present
+    dest: /etc/default/slapd
+    backrefs: yes
+    regexp: "^(SLAPD_SERVICES*)"
+    line: "SLAPD_SERVICES=\"{{ services }}\""
+
+- name: -------- Restart slapd service --------
+  service:
+    name: slapd
+    state: restarted
+
+- name: -------- Copy common setup script --------
+  copy:
+    src: common_run.sh
+    dest: /tmp/common_run.sh
+    owner: root
+    group: root
+    mode: 0700
+
+- name: -------- Run common setup script --------
+  command: 
+    argv:
+      - "/tmp/common_run.sh"
+      - "{{ dn }}"
+      - "{{ domain }}"
+      - "{{ admin_username }}"
+      - "{{ replica_username }}"
+      - "{{ root_passwd }}"
+      - "{{ admin_passwd }}"
+      - "{{ replica_passwd }}"
+      - "{{ org_short_name }}"

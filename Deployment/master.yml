@@ -1,0 +1,13 @@
+---
+- hosts: ldap_master_server
+  become: yes
+  become_method: sudo
+  gather_facts: true
+
+  tags:
+    - ldap_master
+
+  roles:
+    - role: common
+    - role: master
+    - role: finish

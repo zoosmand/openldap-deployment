@@ -1,0 +1,17 @@
+---
+- name: -------- Copy master setup script --------
+  copy:
+    src: master_run.sh
+    dest: /tmp/master_run.sh
+    owner: root
+    group: root
+    mode: 0700
+
+- name: -------- Run master setup script --------
+  command:
+    argv:
+      - "/tmp/master_run.sh"
+      - "{{ dn }}"
+      - "{{ domain }}"
+      - "{{ admin_username }}"
+      - "{{ replica_username }}"

@@ -1,0 +1,30 @@
+---
+ldap_master_server:
+  hosts:
+    master.ldap.askug.net:
+      ansible_user: ubuntu
+      ansible_ssh_private_key: ~/.ssh/git.key
+  vars:
+    node: master
+
+
+ldap_replica_servers:
+  children:
+    replica_server_1:
+      hosts:
+        1.ldap.askug.net:
+      vars:
+        node: 1
+
+    replica_server_2:
+      hosts:
+        2.ldap.askug.net:
+      vars:
+        node: 2
+
+    replica_server_3:
+      hosts:
+        3.ldap.askug.net:
+      vars:
+        node: 3
+        

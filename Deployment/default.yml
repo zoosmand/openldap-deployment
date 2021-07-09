@@ -1,0 +1,5 @@
+---
+root_passwd: "xxxxxx"
+admin_passwd: "yyyyyy"
+replica_passwd: "zzzzzz"
+replica_passwd_clear: "zzzzzz"

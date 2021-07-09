@@ -1,0 +1,9 @@
+---
+dn: dc=askug,dc=net
+domain: askug.net
+services: "ldap://127.0.0.1/ ldapi:/// ldaps:///"
+secrets_file: secrets
+admin_username: admin
+replica_username: replica
+org_short_name: ASKUG
+master_node_preffix: master

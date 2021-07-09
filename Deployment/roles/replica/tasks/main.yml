@@ -1,0 +1,20 @@
+---
+- name: -------- Copy replica setup script --------
+  copy:
+    src: replica_run.sh
+    dest: /tmp/replica_run.sh
+    owner: root
+    group: root
+    mode: 0700
+
+- name: -------- Run replica setup script --------
+  command:
+    argv:
+      - "/tmp/replica_run.sh"
+      - "{{ dn }}"
+      - "{{ domain }}"
+      - "{{ node }}"
+      - "{{ master_node_preffix }}"
+      - "{{ replica_username }}"
+      - "{{ replica_passwd_clear }}"
+      - "{{ admin_username }}"
